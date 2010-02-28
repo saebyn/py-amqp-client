@@ -19,6 +19,7 @@
 
 from __future__ import with_statement # for Python 2.5 compatiblity
 from amqplib import client_0_8 as amqp
+from time import sleep
 import threading
 
 from pyamqpclient.channel import Channel
@@ -56,7 +57,7 @@ class Client(object):
         try:
             self.start()
             while threading.activeCount() > 1:
-                pass # do nothing, just let the threads do their thing
+                sleep(0.1) # do nothing, just let the threads do their thing
         finally:
             return self.stop()
 
