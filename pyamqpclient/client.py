@@ -17,6 +17,7 @@
 #  limitations under the License.
 #
 
+from __future__ import with_statement # for Python 2.5 compatiblity
 from amqplib import client_0_8 as amqp
 import threading
 
@@ -95,15 +96,12 @@ class Client(object):
         # can call it at a time (not that, in general, it's a good
         # idea to have more than one thread want to access this thread).
         lock = threading.Lock()
-        lock.acquire()
-
-        self.stop()
-        self.connection = amqp.Connection(**connection_settings)
-        for prop, routing_key in self.routing_keys.iteritems():
-            self.__getattr__(prop).set_routing_key(routing_key)
-        self.start()
-
-        lock.release()
+        with lock:
+            self.stop()
+            self.connection = amqp.Connection(**connection_settings)
+            for prop, routing_key in self.routing_keys.iteritems():
+                self.__getattr__(prop).set_routing_key(routing_key)
+            self.start()
 
     def __getattr__(self, key):
         client = self
