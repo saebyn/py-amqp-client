@@ -5,7 +5,7 @@ setup(name='py-amqp-client',
       author='John Weaver',
       author_email='john@pledge4code.com',
       url='http://github.com/saebyn/py-amqp-client/',
-      package_dir={'': 'py-amqp-client'},
+      package_dir={'': 'pyamqpclient'},
       packages=[''],
       install_requires=['amqplib >= 0.6.1'],
       classifiers=[
