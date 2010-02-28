@@ -47,6 +47,7 @@ class Client(object):
         amqp.Connection.__init__().
         """
         self.connection = amqp.Connection(**connection_settings)
+        self.connection_settings = connection_settings
         self.routing_keys = {}
 
     def serve_forever(self):
