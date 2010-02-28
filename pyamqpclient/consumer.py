@@ -20,7 +20,7 @@
 from amqplib import client_0_8 as amqp
 
 
-class Consumer:
+class Consumer(object):
     """AMQP Consumer callback wrapper.
 
     # Simple callback
@@ -32,6 +32,9 @@ class Consumer:
     >>> consumer(None)
     "success"
     """
+
+    ack = False
+
     def __init__(self, channel, callback):
         self.channel = channel
         self.callback = callback
@@ -39,16 +42,22 @@ class Consumer:
     def __call__(self, message):
         return self.callback(message)
 
+
 class NoAckConsumer(Consumer):
     """Delivers message to callback and does not return an ack to origin."""
     pass
 
+
 class AckConsumer(Consumer):
     """Delivers message to callback and returns an ack to origin."""
+
+    ack = True
+
     def __call__(self, message):
         ret = Consumer.__call__(self, message)
         self.channel.basic_ack(message.delivery_tag)
         return ret
+
 
 class ReplyingConsumer(AckConsumer):
     """Delivers message to callback and publishes returned response message."""

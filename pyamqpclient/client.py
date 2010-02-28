@@ -19,7 +19,8 @@
 
 from amqplib import client_0_8 as amqp
 
-from py-amqp-client.channel import Channel
+from pyamqpclient.channel import Channel
+
 
 class ClientMetaclass(type):
     def __new__(cls, name, bases, attrs):
@@ -30,6 +31,8 @@ class ClientMetaclass(type):
 
         new_cls = super(ClientMetaclass, cls).__new__(cls, name, bases, attrs)
         new_cls.channels = channels
+        return new_cls
+
 
 class Client(object):
     __metaclass__ = ClientMetaclass
@@ -42,9 +45,18 @@ class Client(object):
         """
         self.connection = amqp.Connection(**connection_settings)
 
+    def serve_forever(self):
+        """Handle requests until an unhandled exception is raised"""
+        try:
+            self.start()
+        finally:
+            return self.stop()
+
     def start(self):
         """Begin waiting for activity on each channel."""
-        pass
+        while True:
+            for channel in self.channels.values():
+                channel.wait()
 
     def stop(self):
         """Stop all channels and close the connection."""
@@ -56,9 +68,8 @@ class Client(object):
         class ConsumerCtl:
             def set_routing_key(self, routing_key):
                 """Set the routing key for this consumer and start channel."""
-                client.channels[key].start(client.connection,
-                                           key, routing_key)
+                client.channels[key].start(client, key, routing_key)
                 return self
 
-        if self.channels.has_key(key):
+        if key in self.channels:
             return ConsumerCtl()

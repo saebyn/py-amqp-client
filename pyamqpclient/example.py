@@ -19,24 +19,24 @@
 
 from amqplib import client_0_8 as amqp
 
-from client import Client
-from channel import Channel
-from consumer import AckConsumer
+from pyamqpclient.client import Client
+from pyamqpclient.channel import Channel
+from pyamqpclient.consumer import ReplyingConsumer
+
 
 class OurClient(Client):
-    consumer = Channel(AckConsumer, 'callback1', 'exchange',
+    consumer = Channel(ReplyingConsumer, 'callback1', 'trapeze',
                            {'durable': False, 'exclusive': False,
                             'auto_delete': False})
 
     def callback1(self, message):
-        print message.body
-        return None
+        print '.'
+        return amqp.Message("HTTP/1.0 200 OK\r\n\r\nhi",
+                            correlation_id=message.message_id)
 
-client = OurClient(connection_settings)
-client.consumer.set_routing_key('')
+client = OurClient({})
+client.consumer.set_routing_key('*.localhost.*./.#')
 try:
     client.start()
 finally:
     client.stop()
-
-

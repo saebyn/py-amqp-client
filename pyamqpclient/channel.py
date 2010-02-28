@@ -19,7 +19,10 @@
 
 from amqplib import client_0_8 as amqp
 
-class Channel:
+assert(__name__ == 'pyamqpclient.channel')
+
+
+class Channel(object):
     def __init__(self, consumer, handler, exchange, options={}):
         """Save declarative options for later `start` method.
 
