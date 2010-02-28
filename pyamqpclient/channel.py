@@ -32,6 +32,7 @@ class Channel(object):
         self.handler = handler
         self.exchange = exchange
         self.queue_options = options
+        self.is_stopped = True
 
     def start(self, client, queue_name, routing_key):
         """Initialize the channel , create the queue `queue_name`,
@@ -39,6 +40,7 @@ class Channel(object):
         register the consumer callback.
         """
         self.channel = client.connection.channel()
+        self.is_stopped = False
 
         # Create queue
         self.channel.queue_declare(queue=queue_name, **self.queue_options)
@@ -64,10 +66,22 @@ class Channel(object):
 
     def wait(self):
         """Wait for activity"""
-        self.channel.wait()
+        try:
+            self.channel.wait()
+        except:
+            self.stop()
+
+    def is_open(self):
+        """Returns a boolean indicating if the channel is open."""
+        return self.channel.is_open and not self.is_stopped
 
     def stop(self):
         """Cancel the consumer callback and close the channel.
         """
-        self.channel.basic_cancel(self.consumer_tag)
-        self.channel.close()
+        try:
+            self.channel.basic_cancel(self.consumer_tag)
+            self.channel.close()
+        finally:
+            self.is_stopped = True # stop the thread whether the channel
+                                   # successful tells the server that
+                                   # we've closed it or not.

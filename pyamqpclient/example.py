@@ -30,13 +30,10 @@ class OurClient(Client):
                             'auto_delete': False})
 
     def callback1(self, message):
-        print '.'
+        print 'R'
         return amqp.Message("HTTP/1.0 200 OK\r\n\r\nhi",
                             correlation_id=message.message_id)
 
 client = OurClient({})
 client.consumer.set_routing_key('*.localhost.*./.#')
-try:
-    client.start()
-finally:
-    client.stop()
+client.serve_forever()
