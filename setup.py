@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='amqp-client',
+setup(name='py-amqp-client',
       version='0.1.0',
       author='John Weaver',
       author_email='john@pledge4code.com',
