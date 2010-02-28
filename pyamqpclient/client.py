@@ -91,14 +91,19 @@ class Client(object):
         a spawned thread.
         """
 
-        # TODO lock this method, so that only one thread
-        # can call it at a time (not that this should be allowed to happen)
+        # Lock this method, so that only one thread
+        # can call it at a time (not that, in general, it's a good
+        # idea to have more than one thread want to access this thread).
+        lock = threading.Lock()
+        lock.acquire()
 
         self.stop()
         self.connection = amqp.Connection(**connection_settings)
         for prop, routing_key in self.routing_keys.iteritems():
             self.__getattr__(prop).set_routing_key(routing_key)
         self.start()
+
+        lock.release()
 
     def __getattr__(self, key):
         client = self
