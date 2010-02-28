@@ -82,6 +82,6 @@ class Channel(object):
             self.channel.basic_cancel(self.consumer_tag)
             self.channel.close()
         finally:
-            self.is_stopped = True # stop the thread whether the channel
-                                   # successful tells the server that
-                                   # we've closed it or not.
+            self.is_stopped = True  # stop the thread whether the channel
+                                    # successful tells the server that
+                                    # we've closed it or not.

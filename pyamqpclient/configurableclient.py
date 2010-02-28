@@ -17,7 +17,7 @@
 #  limitations under the License.
 #
 
-from __future__ import with_statement # for Python 2.5 compatiblity
+from __future__ import with_statement  # for Python 2.5 compatiblity
 from ConfigParser import SafeConfigParser
 
 from pyamqpclient.client import Client
@@ -27,7 +27,7 @@ from pyamqpclient.consumer import AckConsumer
 
 class ClientWithConfigFile(Client):
     """Read the default AMQP connection information from a configuration file.
-    Hook onto restart to grab new config information and save it back to the 
+    Hook onto restart to grab new config information and save it back to the
     file.
     """
 
@@ -50,8 +50,9 @@ class ClientWithConfigFile(Client):
 
         Client.restart(self, connection_settings)
 
+
 class ClientWithNetConfig(Client):
-    """Create a secondary connection and bind a new queue to 
+    """Create a secondary connection and bind a new queue to
     an exchange (amqp-config).
     """
     config_queue = Channel(AckConsumer, 'update_config', 'amqp-config',
@@ -72,6 +73,7 @@ class ClientWithNetConfig(Client):
         new_config.read(message.body)
         connection_settings = new_config.options('default')
         self.restart(connection_settings)
+
 
 class ClientWithNetAndFileConfig(ClientWithConfigFile, ClientWithNetConfig):
     def __init__(self, config_filename):

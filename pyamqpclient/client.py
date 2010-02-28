@@ -17,7 +17,7 @@
 #  limitations under the License.
 #
 
-from __future__ import with_statement # for Python 2.5 compatiblity
+from __future__ import with_statement  # for Python 2.5 compatiblity
 from amqplib import client_0_8 as amqp
 from time import sleep
 import threading
@@ -52,13 +52,13 @@ class Client(object):
 
     def serve_forever(self):
         """Handle requests until an unhandled exception is raised.
-        
+
         Use this method rather than start() and stop().
         """
         try:
             self.start()
             while threading.activeCount() > 1:
-                sleep(0.1) # do nothing, just let the threads do their thing
+                sleep(0.1)  # do nothing, just let the threads do their thing
         finally:
             return self.stop()
 
@@ -79,7 +79,7 @@ class Client(object):
 
     def stop(self):
         """Stop all channels and close the connection.
-        
+
         Calling this will not stop the serve_forever() loop.
         """
         for channel in self.channels.values():
@@ -89,7 +89,7 @@ class Client(object):
 
     def restart(self, connection_settings):
         """Restart the client with new connection settings.
-        
+
         This is intended to be called from within a consumer callback, in
         a spawned thread.
         """
