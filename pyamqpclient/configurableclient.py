@@ -37,7 +37,8 @@ class ClientWithFileConfig(Client):
         self.config = SafeConfigParser()
         self.config.read(config_filename)
         self.config_fn = config_filename
-        connection_settings = self.config.options(CONNECTION_SETTINGS_SECTION)
+        connection_settings = \
+            dict(self.config.items(self.CONNECTION_SETTINGS_SECTION))
         Client.__init__(self, connection_settings)
 
     def restart(self, connection_settings):
@@ -71,7 +72,7 @@ class ClientWithNetConfig(Client):
     def update_config(self, message):
         new_config = SafeConfigParser()
         new_config.read(message.body)
-        connection_settings = new_config.options('default')
+        connection_settings = dict(self.config.items('default'))
         self.restart(connection_settings)
 
 
