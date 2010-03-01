@@ -25,7 +25,7 @@ from pyamqpclient.channel import Channel
 from pyamqpclient.consumer import AckConsumer
 
 
-class ClientWithConfigFile(Client):
+class ClientWithFileConfig(Client):
     """Read the default AMQP connection information from a configuration file.
     Hook onto restart to grab new config information and save it back to the
     file.
@@ -75,7 +75,7 @@ class ClientWithNetConfig(Client):
         self.restart(connection_settings)
 
 
-class ClientWithNetAndFileConfig(ClientWithConfigFile, ClientWithNetConfig):
+class ClientWithNetAndFileConfig(ClientWithFileConfig, ClientWithNetConfig):
     def __init__(self, config_filename):
         ClientWithConfigFile.__init__(self, config_filename)
         self.setup_routing_key()
