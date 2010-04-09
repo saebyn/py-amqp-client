@@ -34,7 +34,7 @@ class Channel(object):
         self.queue_options = options
         self.is_stopped = True
 
-    def start(self, client, queue_name, routing_key):
+    def start(self, client, queue_name, routing_key='', extra_keys=[]):
         """Initialize the channel , create the queue `queue_name`,
         use `routing_key` to bind the queue to the exchange, and
         register the consumer callback.
@@ -45,9 +45,10 @@ class Channel(object):
         # Create queue
         self.channel.queue_declare(queue=queue_name, **self.queue_options)
 
-        # Bind queue to exchange, with routing_key
-        self.channel.queue_bind(queue=queue_name, exchange=self.exchange,
-                                routing_key=routing_key)
+        # Bind queue with routing keys to the exchange.
+        for key in [routing_key].extend(extra_keys):
+            self.channel.queue_bind(queue=queue_name, exchange=self.exchange,
+                                    routing_key=key)
 
         # Initialize consumer class with channel and provided handler
 

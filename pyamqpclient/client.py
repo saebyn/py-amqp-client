@@ -49,6 +49,7 @@ class Client(object):
         self.connection = amqp.Connection(**connection_settings)
         self.connection_settings = connection_settings
         self.routing_keys = {}
+        self.extra_routing_keys = {}
 
     def serve_forever(self):
         """Handle requests until an unhandled exception is raised.
@@ -64,6 +65,12 @@ class Client(object):
 
     def start(self):
         """Begin waiting for activity on each channel."""
+        # for channels that don't need a routing key,
+        # we'll need to start them here.
+        for key, channel in self.channels:
+            if not channel.is_open:
+                channel.start(self, key)
+
         def channel_wait(channel):
             while channel.is_open():
                 channel.wait()
@@ -100,22 +107,27 @@ class Client(object):
         lock = threading.Lock()
         with lock:
             self.stop()
+            self.connection_settings = connection_settings
             self.connection = amqp.Connection(**connection_settings)
             for prop, routing_key in self.routing_keys.iteritems():
-                self.__getattr__(prop).set_routing_key(routing_key)
+                self.__getattr__(prop).\
+                  set_routing_key(routing_key,
+                                  *self.extra_routing_keys[prop])
             self.start()
 
     def __getattr__(self, key):
         client = self
 
         class ConsumerCtl:
-            def set_routing_key(self, routing_key):
+            def set_routing_key(self, routing_key, *extra_keys):
                 """Set the routing key for this consumer and start channel."""
-                # save the routing key, in case we need to restart the
+                # save the routing keyi(s), in case we need to restart the
                 # connection.
                 client.routing_keys[key] = routing_key
+                client.extra_routing_keys[key] = extra_keys
                 # start the channel
-                client.channels[key].start(client, key, routing_key)
+                client.channels[key].start(client, key,
+                                           routing_key, extra_keys)
 
         if key in self.channels:
             return ConsumerCtl()

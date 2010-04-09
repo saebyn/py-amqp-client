@@ -20,6 +20,10 @@
 from amqplib import client_0_8 as amqp
 
 
+class NoAckException(Exception):
+    pass
+
+
 class Consumer(object):
     """AMQP Consumer callback wrapper.
 
@@ -54,8 +58,11 @@ class AckConsumer(Consumer):
     ack = True
 
     def __call__(self, message):
-        ret = Consumer.__call__(self, message)
-        self.channel.basic_ack(message.delivery_tag)
+        try:
+            ret = Consumer.__call__(self, message)
+            self.channel.basic_ack(message.delivery_tag)
+        except NoAckException:
+            pass   # skip basic_ack.
         return ret
 
 
